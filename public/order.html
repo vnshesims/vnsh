@@ -111,6 +111,43 @@
             padding: 3rem 1rem;
             color: #ef4444;
         }
+        .destruction-proof {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+        .destruction-proof-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        .destruction-proof-header::before {
+            content: "✓";
+            color: #22c55e;
+            font-weight: bold;
+        }
+        .destruction-proof-hash {
+            font-family: var(--font-mono);
+            font-size: 0.625rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+            line-height: 1.4;
+        }
+        .destruction-proof-info {
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
         .hidden { display: none; }
     </style>
 </head>
@@ -152,6 +189,14 @@
                 <button class="btn btn-primary copy-btn" onclick="copyLPA()">
                     Copy Activation Code
                 </button>
+
+                <div class="destruction-proof" id="destruction-proof-normal">
+                    <div class="destruction-proof-header">eSIM Destroyed from Inventory</div>
+                    <div class="destruction-proof-hash" id="destruction-hash-normal"></div>
+                    <div class="destruction-proof-info">
+                        This cryptographic hash proves your eSIM was permanently deleted from our inventory at the moment of delivery. We cannot reuse, resell, or access this eSIM.
+                    </div>
+                </div>
             </div>
 
             <!-- Fulfilled State (PGP Encrypted) -->
@@ -168,6 +213,14 @@
                 <button class="btn btn-primary copy-btn" onclick="copyPGP()">
                     Copy Encrypted Message
                 </button>
+
+                <div class="destruction-proof" id="destruction-proof-encrypted">
+                    <div class="destruction-proof-header">eSIM Destroyed from Inventory</div>
+                    <div class="destruction-proof-hash" id="destruction-hash-encrypted"></div>
+                    <div class="destruction-proof-info">
+                        This cryptographic hash proves your eSIM was permanently deleted from our inventory at the moment of delivery. We cannot reuse, resell, or access this eSIM.
+                    </div>
+                </div>
             </div>
 
             <!-- Error State -->
@@ -217,10 +270,10 @@
                         }
                         if (data.encrypted) {
                             pgpMessage = data.lpa;
-                            showEncrypted(data.lpa);
+                            showEncrypted(data.lpa, data.destruction_proof);
                         } else {
                             lpaCode = data.lpa;
-                            showFulfilled(data.lpa);
+                            showFulfilled(data.lpa, data.destruction_proof);
                         }
                     } else if (data.status === 'pending') {
                         // Keep polling
@@ -233,7 +286,7 @@
                 });
         }
 
-        function showFulfilled(lpa) {
+        function showFulfilled(lpa, destructionProof) {
             document.getElementById('status-pending').classList.add('hidden');
             document.getElementById('status-fulfilled').classList.remove('hidden');
             document.getElementById('lpa-display').textContent = lpa;
@@ -247,12 +300,26 @@
                     light: '#ffffff'
                 }
             });
+
+            // Show destruction proof if available
+            if (destructionProof) {
+                document.getElementById('destruction-hash-normal').textContent = destructionProof;
+            } else {
+                document.getElementById('destruction-proof-normal').classList.add('hidden');
+            }
         }
 
-        function showEncrypted(pgp) {
+        function showEncrypted(pgp, destructionProof) {
             document.getElementById('status-pending').classList.add('hidden');
             document.getElementById('status-encrypted').classList.remove('hidden');
             document.getElementById('pgp-display').textContent = pgp;
+
+            // Show destruction proof if available
+            if (destructionProof) {
+                document.getElementById('destruction-hash-encrypted').textContent = destructionProof;
+            } else {
+                document.getElementById('destruction-proof-encrypted').classList.add('hidden');
+            }
         }
 
         function showError() {

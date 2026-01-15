@@ -1,7 +1,6 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+-----BEGIN VNSH WARRANT CANARY-----
 
-VNSH Warrant Canary
+VNSH Warrant Canary Statement
 
 As of this date, VNSH has NOT received:
 
@@ -9,16 +8,17 @@ As of this date, VNSH has NOT received:
 2. Any gag orders or sealed court orders
 3. Any requests from government agencies for user data
 4. Any requests to install backdoors or monitoring software
+5. Any court orders requiring system modifications
 
-We have not been required to modify our systems in any way that would
-compromise user privacy or security.
+We have not been required to modify our systems in any way that
+would compromise user privacy or security.
 
-This canary will be updated monthly. If this file is not updated for
-more than 60 days, or if this statement is removed, assume the worst.
+This canary is updated monthly. If this statement is not updated
+for more than 60 days, or if any of these statements are removed,
+assume the canary is dead.
 
-Date: 2026-01-14
-Next update due: 2026-02-14
+Date Signed: 2026-01-15
+Next Update: 2026-02-15
+Signer: VNSH Operations
 
------BEGIN PGP SIGNATURE-----
-[SIGNATURE PLACEHOLDER - Sign with your PGP key]
------END PGP SIGNATURE-----
+-----END VNSH WARRANT CANARY-----

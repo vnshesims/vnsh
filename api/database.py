@@ -383,15 +383,35 @@ def get_order(order_id):
 
 
 def fulfill_order(invoice_id, lpa):
-    """Mark order as fulfilled and store the LPA."""
+    """Mark order as fulfilled, store the LPA, and generate destruction proof."""
+    import hashlib
+    from datetime import datetime
+
     conn = get_db()
     cursor = conn.cursor()
+
+    # Add destruction_proof column if it doesn't exist
+    try:
+        cursor.execute("ALTER TABLE orders ADD COLUMN destruction_proof TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    # Generate destruction proof: hash of invoice_id + lpa + timestamp
+    timestamp = datetime.utcnow().isoformat()
+    proof_data = f"{invoice_id}:{lpa}:{timestamp}"
+    destruction_proof = hashlib.sha256(proof_data.encode()).hexdigest()
+
     cursor.execute("""
         UPDATE orders
-        SET status = 'fulfilled', lpa = ?
+        SET status = 'fulfilled', lpa = ?, destruction_proof = ?
         WHERE invoice_id = ?
-    """, (lpa, invoice_id))
+    """, (lpa, destruction_proof, invoice_id))
     updated = cursor.rowcount
+
+    # Delete the eSIM from inventory (it's been assigned and delivered)
+    if updated > 0:
+        cursor.execute("DELETE FROM esim_inventory WHERE lpa = ?", (lpa,))
+
     conn.commit()
     conn.close()
     return updated > 0

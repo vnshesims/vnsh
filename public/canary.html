@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warrant Canary - VNSH</title>
+    <meta name="description" content="VNSH Warrant Canary - Transparency about legal requests and government orders.">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .canary-page { padding: 8rem 0 4rem; }
+        .canary-content { max-width: 720px; margin: 0 auto; }
+        .canary-content h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .canary-meta { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        .canary-status { background: var(--bg-elevated); border: 1px solid var(--accent); border-radius: var(--radius-md); padding: 1.5rem; margin: 1.5rem 0; }
+        .canary-status.active { border-color: #22c55e; }
+        .canary-status h2 { color: #22c55e; font-size: 1.25rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .canary-status h2::before { content: "●"; font-size: 0.75rem; }
+        .canary-list { list-style: none; margin: 0; padding: 0; }
+        .canary-list li { padding: 0.75rem 0; border-bottom: 1px solid var(--border); color: var(--text-secondary); display: flex; align-items: flex-start; gap: 0.75rem; }
+        .canary-list li:last-child { border-bottom: none; }
+        .canary-list li::before { content: "✓"; color: #22c55e; font-weight: bold; }
+        .canary-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+        .canary-date { background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); }
+        .canary-date-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .canary-date-value { font-size: 1.125rem; color: var(--text-primary); margin-top: 0.25rem; }
+        .canary-explanation { margin-top: 2rem; }
+        .canary-explanation h3 { font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-primary); }
+        .canary-explanation p { font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1rem; }
+        .canary-raw { margin-top: 2rem; }
+        .canary-raw summary { cursor: pointer; color: var(--accent); font-size: 0.875rem; }
+        .canary-raw pre { background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); overflow-x: auto; font-size: 0.75rem; color: var(--text-secondary); margin-top: 1rem; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <header>
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">&#9671;</span>
+                <span class="logo-text">VNSH</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="canary-page">
+        <div class="container">
+            <div class="canary-content">
+                <h1>Warrant Canary</h1>
+                <p class="canary-meta">Transparency about legal requests and government orders</p>
+
+                <div class="canary-status active">
+                    <h2>All Clear</h2>
+                    <ul class="canary-list">
+                        <li>No National Security Letters or FISA court orders received</li>
+                        <li>No gag orders or sealed court orders received</li>
+                        <li>No government requests for user data received</li>
+                        <li>No requests to install backdoors or monitoring software</li>
+                        <li>No systems modified to compromise user privacy</li>
+                    </ul>
+                    <div class="canary-dates">
+                        <div class="canary-date">
+                            <div class="canary-date-label">Last Updated</div>
+                            <div class="canary-date-value" id="canary-updated">2026-01-15</div>
+                        </div>
+                        <div class="canary-date">
+                            <div class="canary-date-label">Next Update Due</div>
+                            <div class="canary-date-value" id="canary-next">2026-02-15</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="canary-explanation">
+                    <h3>What is a Warrant Canary?</h3>
+                    <p>A warrant canary is a method by which a service provider can indirectly inform users about government requests that they may be legally prohibited from disclosing directly. The concept is simple: as long as this page states we have NOT received certain types of requests, you can trust that we haven't. If this page is removed, not updated, or the statements change, you should assume the worst.</p>
+
+                    <h3>Why This Matters</h3>
+                    <p>Some government orders (like National Security Letters in the US) come with gag orders that prohibit companies from even acknowledging they received a request. While we cannot say "we received a request," we CAN choose to stop saying "we have NOT received a request." The absence of this canary is the signal.</p>
+
+                    <h3>Our Commitment</h3>
+                    <p>This canary will be updated monthly. If more than 60 days pass without an update, or if any of the statements above are removed or modified, you should consider the canary dead and act accordingly. Our architecture minimizes data collection, but transparency about legal pressure is equally important.</p>
+                </div>
+
+                <details class="canary-raw">
+                    <summary>View Raw Signed Canary</summary>
+                    <pre id="canary-raw-text">Loading...</pre>
+                </details>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="logo">
+                        <span class="logo-icon">&#9671;</span>
+                        <span class="logo-text">VNSH</span>
+                    </a>
+                    <p>Ephemeral connectivity for those who value privacy.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="/lookup.html">Order Lookup</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="mailto:vnshprotocol@protonmail.com">Support</a>
+                </div>
+                <div class="footer-verify">
+                    <a href="https://github.com/vnshesims/vnsh" target="_blank" rel="noopener">Open Source</a>
+                    <a href="/version.json">Version</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        fetch('/canary.txt')
+            .then(function(r) { return r.text(); })
+            .then(function(text) {
+                document.getElementById('canary-raw-text').textContent = text;
+            })
+            .catch(function() {
+                document.getElementById('canary-raw-text').textContent = 'Could not load canary file.';
+            });
+    </script>
+</body>
+</html>

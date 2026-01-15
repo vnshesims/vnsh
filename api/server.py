@@ -537,7 +537,8 @@ def get_order_status(order_id):
         return jsonify({
             "status": "fulfilled",
             "lpa": lpa,
-            "encrypted": encrypted
+            "encrypted": encrypted,
+            "destruction_proof": order.get('destruction_proof')
         })
     elif order['status'] == 'pending':
         return jsonify({
