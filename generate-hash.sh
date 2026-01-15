@@ -15,7 +15,7 @@ cat > public/version.json << EOF
   "hash": "${HASH}",
   "commit": "${COMMIT}",
   "generated": "${TIMESTAMP}",
-  "verify": "find public -type f \\( -name '*.html' -o -name '*.css' -o -name '*.js' \\) ! -name 'version.json' | sort | xargs cat | sha256sum"
+  "verify": "find public -type f -name '*.html' -o -name '*.css' -o -name '*.js' | grep -v version.json | sort | xargs cat | sha256sum"
 }
 EOF
 
