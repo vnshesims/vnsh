@@ -234,7 +234,7 @@
                 </div>
                 <div class="footer-verify">
                     <a href="https://github.com/vnshesims/vnsh" target="_blank" rel="noopener">Open Source</a>
-                    <a href="" id="version-link" target="_blank" rel="noopener">Version</a>
+                    <a href="/version.json">Version</a>
                 </div>
             </div>
         </div>
@@ -616,18 +616,6 @@
         // Initial load
         loadCountries();
 
-        // Load and display version info
-        fetch('/version.json')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                var versionLink = document.getElementById('version-link');
-                if (versionLink && data.commit) {
-                    versionLink.textContent = 'v' + data.commit;
-                    versionLink.href = 'https://github.com/vnshesims/vnsh/commit/' + data.commit;
-                    versionLink.title = 'Hash: ' + data.hash + '\nGenerated: ' + data.generated;
-                }
-            })
-            .catch(function() {});
     })();
     </script>
 </body>
