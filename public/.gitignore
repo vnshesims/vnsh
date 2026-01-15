@@ -1,0 +1,25 @@
+# Environment and secrets
+.env
+.env.local
+*.key
+*.pem
+WALLET_BACKUP.txt
+
+# Docker
+docker-compose.override.yml
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Nginx logs
+logs/
+*.log

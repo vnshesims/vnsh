@@ -1,0 +1,42 @@
+# Database
+*.db
+
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Old git folder
+git/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temp files
+*.tmp
+*.bak
+
+# Sensitive files
+WALLET_BACKUP.txt
+inventory.csv
+
+# Deployment specific
+sync-clearnet.sh
+purge-invoices.sh
+clearnet/
+
+# Documentation with sensitive info
+DEPLOYMENT_SUMMARY.md
+TOR_ACCESS.md
+QUICK_REFERENCE.md

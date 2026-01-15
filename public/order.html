@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your eSIM - VNSH</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .order-container {
+            max-width: 500px;
+            margin: 8rem auto 4rem;
+            padding: 0 1.5rem;
+        }
+        .order-box {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            text-align: center;
+        }
+        .order-box h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .order-box .subtitle {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+        }
+        .qr-container {
+            background: #fff;
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            display: inline-block;
+        }
+        .qr-container canvas {
+            display: block;
+        }
+        .lpa-code {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            word-break: break-all;
+            color: var(--text-secondary);
+            text-align: left;
+        }
+        .pgp-output {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: var(--font-mono);
+            font-size: 0.625rem;
+            line-height: 1.4;
+            color: var(--text-secondary);
+            text-align: left;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .encrypted-notice {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            border-radius: var(--radius-md);
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.8125rem;
+            color: #10b981;
+        }
+        .copy-btn {
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .status-pending {
+            padding: 3rem 1rem;
+        }
+        .status-pending h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.8125rem;
+            color: #ef4444;
+            text-align: center;
+        }
+        .error-box {
+            padding: 3rem 1rem;
+            color: #ef4444;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <header>
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">&#9671;</span>
+                <span class="logo-text">VNSH</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="order-container">
+        <div class="order-box">
+            <!-- Pending State -->
+            <div id="status-pending" class="status-pending">
+                <h2>Processing Payment...</h2>
+                <div class="spinner"></div>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">
+                    Waiting for confirmation. This usually takes a few minutes.
+                </p>
+            </div>
+
+            <!-- Fulfilled State (Normal) -->
+            <div id="status-fulfilled" class="hidden">
+                <h1>Your eSIM is Ready</h1>
+                <p class="subtitle">Scan the QR code with your device to install</p>
+
+                <div class="qr-container">
+                    <canvas id="qr-code"></canvas>
+                </div>
+
+                <div class="lpa-code" id="lpa-display"></div>
+
+                <button class="btn btn-primary copy-btn" onclick="copyLPA()">
+                    Copy Activation Code
+                </button>
+            </div>
+
+            <!-- Fulfilled State (PGP Encrypted) -->
+            <div id="status-encrypted" class="hidden">
+                <h1>Your eSIM is Ready</h1>
+                <p class="subtitle">Encrypted with your PGP key</p>
+
+                <div class="encrypted-notice">
+                    Decrypt this message with your private key to reveal the activation code.
+                </div>
+
+                <div class="pgp-output" id="pgp-display"></div>
+
+                <button class="btn btn-primary copy-btn" onclick="copyPGP()">
+                    Copy Encrypted Message
+                </button>
+            </div>
+
+            <!-- Error State -->
+            <div id="status-error" class="error-box hidden">
+                <h2>Order Not Found</h2>
+                <p>This order may have expired or the link is invalid.</p>
+                <p style="margin-top: 1rem;"><a href="/lookup.html" style="color: var(--accent);">Look up order by invoice ID</a></p>
+            </div>
+        </div>
+
+        <p style="text-align: center; margin-top: 1.5rem; font-size: 0.8125rem; color: var(--text-muted);">
+            <a href="/lookup.html" style="color: var(--text-secondary);">Look up order by invoice ID</a>
+        </p>
+    </div>
+
+    <script src="/qrcode.min.js"></script>
+    <script>
+    (function() {
+        // Get order ID from URL path
+        var pathParts = window.location.pathname.split('/');
+        var orderId = pathParts[pathParts.length - 1];
+
+        if (!orderId || orderId === 'order.html') {
+            showError();
+            return;
+        }
+
+        var lpaCode = null;
+        var pgpMessage = null;
+        var pollInterval = null;
+
+        function checkOrderStatus() {
+            fetch('/api/order/' + encodeURIComponent(orderId))
+                .then(function(r) {
+                    if (r.status === 404) {
+                        showError();
+                        return null;
+                    }
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (!data) return;
+
+                    if (data.status === 'fulfilled' && data.lpa) {
+                        if (pollInterval) {
+                            clearInterval(pollInterval);
+                        }
+                        if (data.encrypted) {
+                            pgpMessage = data.lpa;
+                            showEncrypted(data.lpa);
+                        } else {
+                            lpaCode = data.lpa;
+                            showFulfilled(data.lpa);
+                        }
+                    } else if (data.status === 'pending') {
+                        // Keep polling
+                    } else if (data.error) {
+                        showError();
+                    }
+                })
+                .catch(function() {
+                    // Network error, keep trying
+                });
+        }
+
+        function showFulfilled(lpa) {
+            document.getElementById('status-pending').classList.add('hidden');
+            document.getElementById('status-fulfilled').classList.remove('hidden');
+            document.getElementById('lpa-display').textContent = lpa;
+
+            // Generate QR code
+            QRCode.toCanvas(document.getElementById('qr-code'), lpa, {
+                width: 200,
+                margin: 0,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
+            });
+        }
+
+        function showEncrypted(pgp) {
+            document.getElementById('status-pending').classList.add('hidden');
+            document.getElementById('status-encrypted').classList.remove('hidden');
+            document.getElementById('pgp-display').textContent = pgp;
+        }
+
+        function showError() {
+            document.getElementById('status-pending').classList.add('hidden');
+            document.getElementById('status-error').classList.remove('hidden');
+            if (pollInterval) {
+                clearInterval(pollInterval);
+            }
+        }
+
+        window.copyLPA = function() {
+            if (lpaCode) {
+                navigator.clipboard.writeText(lpaCode).then(function() {
+                    var btn = document.querySelector('#status-fulfilled .copy-btn');
+                    btn.textContent = 'Copied!';
+                    setTimeout(function() {
+                        btn.textContent = 'Copy Activation Code';
+                    }, 2000);
+                });
+            }
+        };
+
+        window.copyPGP = function() {
+            if (pgpMessage) {
+                navigator.clipboard.writeText(pgpMessage).then(function() {
+                    var btn = document.querySelector('#status-encrypted .copy-btn');
+                    btn.textContent = 'Copied!';
+                    setTimeout(function() {
+                        btn.textContent = 'Copy Encrypted Message';
+                    }, 2000);
+                });
+            }
+        };
+
+        // Initial check
+        checkOrderStatus();
+
+        // Poll every 5 seconds while pending
+        pollInterval = setInterval(checkOrderStatus, 5000);
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Lookup - VNSH</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .lookup-container {
+            max-width: 450px;
+            margin: 8rem auto 4rem;
+            padding: 0 1.5rem;
+        }
+        .lookup-box {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            text-align: center;
+        }
+        .lookup-box h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .lookup-box .subtitle {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+        }
+        .lookup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .lookup-form input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            text-align: center;
+        }
+        .lookup-form input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .lookup-form input::placeholder {
+            color: var(--text-muted);
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <header>
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">&#9671;</span>
+                <span class="logo-text">VNSH</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="lookup-container">
+        <div class="lookup-box">
+            <h1>Order Lookup</h1>
+            <p class="subtitle">Enter your BTCPay invoice ID to find your order</p>
+
+            <form class="lookup-form" id="lookup-form">
+                <input type="text" id="invoice-id" name="invoice_id" placeholder="Invoice ID (e.g. 6UufaR2E5UoKHuCVd2oEjH)" required>
+                <button type="submit" class="btn btn-primary">
+                    Find Order
+                </button>
+            </form>
+
+            <p id="error-msg" class="error-msg hidden"></p>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        var form = document.getElementById('lookup-form');
+        var errorMsg = document.getElementById('error-msg');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            errorMsg.classList.add('hidden');
+
+            var invoiceId = document.getElementById('invoice-id').value.trim();
+            if (!invoiceId) return;
+
+            fetch('/api/lookup?invoice_id=' + encodeURIComponent(invoiceId))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.error) {
+                        errorMsg.textContent = data.error;
+                        errorMsg.classList.remove('hidden');
+                    } else if (data.order_id) {
+                        window.location.href = '/order/' + data.order_id;
+                    }
+                })
+                .catch(function() {
+                    errorMsg.textContent = 'Network error. Please try again.';
+                    errorMsg.classList.remove('hidden');
+                });
+        });
+    })();
+    </script>
+</body>
+</html>

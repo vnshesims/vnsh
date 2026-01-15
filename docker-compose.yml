@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  storefront_nginx:
+    image: nginx:1.25.3-bookworm
+    container_name: storefront_nginx
+    restart: unless-stopped
+    volumes:
+      - ./public:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    expose:
+      - "80"
+    environment:
+      - HIDDENSERVICE_NAME=Storefront
+      - HIDDENSERVICE_PORT=80
+    networks:
+      - generated_default
+    depends_on:
+      - storefront_api
+
+  storefront_api:
+    build: ./api
+    container_name: storefront_api
+    restart: unless-stopped
+    volumes:
+      - ./api/vnsh.db:/app/vnsh.db
+    expose:
+      - "5000"
+    environment:
+      - BTCPAY_URL=http://generated_btcpayserver_1:49392
+      - BTCPAY_API_KEY=6c1c8742b50dbe28991261d8f70a3fa71abaf682
+      - BTCPAY_STORE_ID=71EWBizMzrkhgt2hRvQutmrvFHbEdXNn33KZqFKzoha
+      - BTCPAY_WEBHOOK_SECRET=a0e13c26a31529d72b87bb5c4424af4788cebadc87fc7648ce158a9eff545cea
+      - BTCPAY_ONION_URL=http://4yl2utzotn5uuoy6exiyr3gk2bt4ohnzmmb42ms7hvm57tp5et36ggad.onion
+      - STOREFRONT_ONION_URL=http://yftwmwb4oro3fbrljt4db24b2gbfmh4t4nxcq73z4blha2sx272aubyd.onion
+    networks:
+      - generated_default
+
+networks:
+  generated_default:
+    external: true

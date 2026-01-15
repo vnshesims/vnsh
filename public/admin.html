@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VNSH Admin — Pricing Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #0d0d0d;
+            --text-primary: #fafafa;
+            --text-secondary: #a0a0a0;
+            --accent: #00ffd5;
+            --warning: #ffb800;
+            --success: #00ff88;
+            --error: #ff4444;
+            --border: #222222;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-display);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section h2 {
+            font-size: 1rem;
+            font-family: var(--font-mono);
+            color: var(--accent);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .price { color: var(--accent); }
+        .featured { color: var(--warning); }
+
+        input, select {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            padding: 0.5rem;
+            width: 100%;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+
+        button {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover { opacity: 0.8; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .status {
+            padding: 0.5rem;
+            margin-top: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+        }
+
+        .status.success { background: rgba(0, 255, 136, 0.1); color: var(--success); }
+        .status.error { background: rgba(255, 68, 68, 0.1); color: var(--error); }
+
+        .actions { display: flex; gap: 0.5rem; }
+
+        .edit-btn, .save-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VNSH Admin</h1>
+        <p class="subtitle">Pricing & Inventory Management</p>
+
+        <div class="section">
+            <h2>Current Pricing</h2>
+            <div style="margin-bottom: 1rem;">
+                <label for="view-country">View Country</label>
+                <select id="view-country" onchange="loadPricing()">
+                    <option value="">Global (Default)</option>
+                </select>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plan</th>
+                        <th>Duration</th>
+                        <th>Data</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Featured</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="pricing-table">
+                    <tr><td colspan="7">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Update Global Pricing</h2>
+            <form id="update-form" onsubmit="updatePricing(event)">
+                <div class="form-grid">
+                    <div>
+                        <label for="plan-id">Plan</label>
+                        <select id="plan-id" required>
+                            <option value="1">1 Day</option>
+                            <option value="2">7 Days</option>
+                            <option value="3">30 Days</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="data-gb">Data (GB)</label>
+                        <input type="number" id="data-gb" min="1" required>
+                    </div>
+                    <div>
+                        <label for="price-usd">Price (USD)</label>
+                        <input type="number" id="price-usd" min="0" step="0.01" required>
+                    </div>
+                    <div>
+                        <label for="stock">Stock (-1 = unlimited)</label>
+                        <input type="number" id="stock" value="-1">
+                    </div>
+                    <div>
+                        <label for="featured">Featured</label>
+                        <select id="featured">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit">Update Global Pricing</button>
+                <div id="update-status" class="status" style="display: none;"></div>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>Add Country-Specific Pricing</h2>
+            <form id="country-form" onsubmit="addCountryPricing(event)">
+                <div class="form-grid">
+                    <div>
+                        <label for="country-code">Country</label>
+                        <select id="country-code" required></select>
+                    </div>
+                    <div>
+                        <label for="country-plan-id">Plan</label>
+                        <select id="country-plan-id" required>
+                            <option value="1">1 Day</option>
+                            <option value="2">7 Days</option>
+                            <option value="3">30 Days</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="country-data-gb">Data (GB)</label>
+                        <input type="number" id="country-data-gb" min="1" required>
+                    </div>
+                    <div>
+                        <label for="country-price-usd">Price (USD)</label>
+                        <input type="number" id="country-price-usd" min="0" step="0.01" required>
+                    </div>
+                    <div>
+                        <label for="country-cost-usd">Cost (USD)</label>
+                        <input type="number" id="country-cost-usd" min="0" step="0.01" value="0">
+                    </div>
+                </div>
+                <button type="submit">Add Country Pricing</button>
+                <div id="country-status" class="status" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        async function loadCountries() {
+            try {
+                const response = await fetch('/api/countries');
+                const data = await response.json();
+
+                const viewSelect = document.getElementById('view-country');
+                const countrySelect = document.getElementById('country-code');
+
+                data.countries.forEach(c => {
+                    if (c.code !== 'GLOBAL') {
+                        viewSelect.innerHTML += `<option value="${c.code}">${c.name}</option>`;
+                        countrySelect.innerHTML += `<option value="${c.code}">${c.name}</option>`;
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to load countries:', e);
+            }
+        }
+
+        async function loadPricing() {
+            const country = document.getElementById('view-country').value;
+            const tbody = document.getElementById('pricing-table');
+
+            try {
+                const url = country ? `/api/pricing?country=${country}` : '/api/pricing';
+                const response = await fetch(url);
+                const data = await response.json();
+
+                tbody.innerHTML = data.plans.map(p => `
+                    <tr>
+                        <td>${p.plan_name}</td>
+                        <td>${p.duration_days} days</td>
+                        <td>${p.data_gb} GB</td>
+                        <td class="price">$${parseFloat(p.price_usd).toFixed(2)}</td>
+                        <td>${p.stock === -1 ? 'Unlimited' : p.stock}</td>
+                        <td class="${p.featured ? 'featured' : ''}">${p.featured ? 'Yes' : 'No'}</td>
+                        <td>-</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="7">Error loading pricing</td></tr>';
+            }
+        }
+
+        async function updatePricing(event) {
+            event.preventDefault();
+            const status = document.getElementById('update-status');
+
+            const data = {
+                plan_id: parseInt(document.getElementById('plan-id').value),
+                data_gb: parseInt(document.getElementById('data-gb').value),
+                price_usd: parseFloat(document.getElementById('price-usd').value),
+                stock: parseInt(document.getElementById('stock').value),
+                featured: parseInt(document.getElementById('featured').value)
+            };
+
+            try {
+                const response = await fetch('/api/admin/pricing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                status.style.display = 'block';
+                if (result.success) {
+                    status.className = 'status success';
+                    status.textContent = 'Pricing updated successfully';
+                    loadPricing();
+                } else {
+                    status.className = 'status error';
+                    status.textContent = 'Failed to update pricing';
+                }
+            } catch (e) {
+                status.style.display = 'block';
+                status.className = 'status error';
+                status.textContent = 'Error: ' + e.message;
+            }
+        }
+
+        async function addCountryPricing(event) {
+            event.preventDefault();
+            const status = document.getElementById('country-status');
+
+            const data = {
+                country_code: document.getElementById('country-code').value,
+                plan_id: parseInt(document.getElementById('country-plan-id').value),
+                data_gb: parseInt(document.getElementById('country-data-gb').value),
+                price_usd: parseFloat(document.getElementById('country-price-usd').value),
+                cost_usd: parseFloat(document.getElementById('country-cost-usd').value)
+            };
+
+            try {
+                const response = await fetch('/api/admin/country-pricing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                status.style.display = 'block';
+                if (result.success) {
+                    status.className = 'status success';
+                    status.textContent = 'Country pricing added successfully';
+                    loadPricing();
+                } else {
+                    status.className = 'status error';
+                    status.textContent = 'Failed to add country pricing';
+                }
+            } catch (e) {
+                status.style.display = 'block';
+                status.className = 'status error';
+                status.textContent = 'Error: ' + e.message;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCountries();
+            loadPricing();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+lpa,country,days,price
+LPA:1$example.com$ABC123,United States,7,15
+LPA:1$example.com$ABC124,United States,7,15
+LPA:1$example.com$ABC125,United States,7,15
+LPA:1$example.com$DEF001,United States,30,35
+LPA:1$example.com$DEF002,United States,30,35
+LPA:1$example.com$GHI001,Germany,7,18
+LPA:1$example.com$GHI002,Germany,7,18
+LPA:1$example.com$GHI003,Germany,30,40
+LPA:1$example.com$JKL001,Japan,7,20
+LPA:1$example.com$JKL002,Japan,7,20

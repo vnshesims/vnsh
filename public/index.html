@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VNSH - Anonymous eSIM That Self-Destructs</title>
+    <meta name="description" content="Ephemeral eSIM with zero data retention. Random pool assignment. Auto-destruct after use. Bitcoin & Monero accepted.">
+    <link rel="stylesheet" href="style.css">
+    <script src="qrcode.min.js"></script>
+</head>
+<body>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <header>
+        <div class="container">
+            <a href="#" class="logo">
+                <span class="logo-icon">&#9671;</span>
+                <span class="logo-text">VNSH</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section - Two Column Layout -->
+        <section class="hero">
+            <div class="container hero-grid">
+                <!-- Left Column: Logo + How It Works -->
+                <div class="hero-left">
+                    <div class="hero-brand">
+                        <div class="brand-logo">
+                            <span class="logo-icon large">&#9671;</span>
+                            <span class="logo-text large">VNSH</span>
+                        </div>
+                        <p class="brand-tagline">Break the payment-identity link. Optional PGP encryption for secure delivery. Hosted by PrivateAlps in Switzerland.</p>
+                    </div>
+
+                    <!-- How It Works -->
+                    <div class="how-it-works">
+                        <h2>How It Works</h2>
+
+                        <div class="step">
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <h3>Select & Pay <button type="button" class="help-toggle" aria-label="Learn more about payment">?</button></h3>
+                                <div class="help-expand hidden">
+                                    <p>Choose country and plan. Pay with Bitcoin or Monero. Wait for confirmation.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <h3>PGP Encrypted Delivery <button type="button" class="help-toggle" aria-label="Learn more about PGP encryption">?</button></h3>
+                                <div class="help-expand hidden">
+                                    <p>For additional security, enter PGP public key to receive encrypted LPA string for manual eSIM activation.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <h3>Random Assignment <button type="button" class="help-toggle" aria-label="Learn more about random assignment">?</button></h3>
+                                <div class="help-expand hidden">
+                                    <p>Once payment confirms, a random eSIM is assigned from the pool of available SIMs.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-num">4</div>
+                            <div class="step-content">
+                                <h3>Connect <button type="button" class="help-toggle" aria-label="Learn more about connecting">?</button></h3>
+                                <div class="help-expand hidden">
+                                    <p>Scan QR code or manually enter provided LPA string.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Purchase Box -->
+                <div class="hero-right">
+                    <div id="purchase" class="purchase-box">
+                        <div class="purchase-header">
+                            <h2>Select a Plan</h2>
+                        </div>
+
+                        <form id="purchase-form" class="purchase-form">
+                            <!-- Country Selection -->
+                            <div class="form-group">
+                                <label for="country">Country</label>
+                                <select id="country" name="country" required>
+                                    <option value="United States">United States</option>
+                                    <!-- Populated by JavaScript -->
+                                </select>
+                            </div>
+
+                            <!-- Networks Info -->
+                            <div class="info-row" id="networks-row">
+                                <span class="info-label">Networks</span>
+                                <span class="info-value" id="display-networks">AT&T, T-Mobile, Verizon</span>
+                            </div>
+
+                            <!-- Speed Info -->
+                            <div class="info-row">
+                                <span class="info-label">Speed</span>
+                                <span class="info-value">4G / 5G</span>
+                            </div>
+
+                            <!-- Type Info -->
+                            <div class="info-row">
+                                <span class="info-label">Type</span>
+                                <span class="info-value">Data Only</span>
+                            </div>
+
+                            <!-- Duration Selection -->
+                            <div class="form-group">
+                                <label for="duration">Plan</label>
+                                <select id="duration" name="duration" required>
+                                    <option value="1" data-price="5" data-data="1">1 Day - 1GB - $5</option>
+                                    <option value="30" data-price="20" data-data="10" selected>30 Days - 10GB - $20</option>
+                                </select>
+                            </div>
+
+                            <!-- PGP Encryption Option -->
+                            <div class="form-group pgp-group">
+                                <label class="pgp-checkbox-label">
+                                    <input type="checkbox" id="pgp-encrypt" name="pgp_encrypt">
+                                    <span class="pgp-checkbox-text">PGP Encrypt</span>
+                                </label>
+                                <div id="pgp-key-container" class="pgp-key-container hidden">
+                                    <textarea id="pgp-key" name="pgp_key" rows="4" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;...&#10;-----END PGP PUBLIC KEY BLOCK-----"></textarea>
+                                    <p class="field-hint">Your eSIM code will be encrypted. Only you can decrypt it.</p>
+                                </div>
+                            </div>
+
+                            <!-- Purchase Buttons -->
+                            <div id="payment-buttons" class="payment-buttons">
+                                <button type="button" id="pay-btc" class="btn btn-primary btn-lg btn-btc">
+                                    Pay with Bitcoin
+                                </button>
+                                <button type="button" id="pay-xmr" class="btn btn-secondary btn-lg btn-xmr">
+                                    Pay with Monero
+                                </button>
+                            </div>
+
+                            <!-- Inline Payment Display (hidden initially) -->
+                            <div id="payment-display" class="payment-display hidden">
+                                <div class="payment-header-info">
+                                    <span class="payment-method-label" id="payment-method-label">Bitcoin</span>
+                                    <span class="payment-amount-usd" id="payment-amount-usd">$20.00</span>
+                                </div>
+                                <div class="invoice-id-row">
+                                    <span class="invoice-id-label">Invoice ID:</span>
+                                    <code class="invoice-id-value" id="invoice-id-value">...</code>
+                                </div>
+                                <div class="payment-qr">
+                                    <canvas id="payment-qr-code"></canvas>
+                                </div>
+                                <div class="payment-details">
+                                    <div class="payment-amount">
+                                        <span class="payment-label">Amount</span>
+                                        <code class="payment-value" id="payment-crypto-amount">0.00000000</code>
+                                    </div>
+                                    <div class="payment-address">
+                                        <span class="payment-label">Address</span>
+                                        <code class="payment-value" id="payment-address-value">...</code>
+                                    </div>
+                                </div>
+                                <button type="button" id="copy-address" class="btn btn-secondary btn-sm">
+                                    Copy Address
+                                </button>
+                                <div class="payment-status" id="payment-status">
+                                    <div class="payment-spinner"></div>
+                                    <span id="payment-status-text">Waiting for payment...</span>
+                                </div>
+                                <button type="button" id="cancel-payment" class="btn btn-secondary btn-cancel">
+                                    Cancel and start over
+                                </button>
+                            </div>
+
+                            <!-- eSIM Result Display (hidden initially) -->
+                            <div id="esim-result" class="esim-result hidden">
+                                <h3 class="esim-result-title">Your eSIM is Ready</h3>
+                                <p class="esim-result-subtitle">Scan the QR code with your device to install</p>
+                                <div class="esim-qr">
+                                    <canvas id="esim-qr-code"></canvas>
+                                </div>
+                                <div class="esim-lpa-code" id="esim-lpa-display"></div>
+                                <button type="button" id="copy-lpa" class="btn btn-primary">
+                                    Copy Activation Code
+                                </button>
+                            </div>
+
+                            <!-- PGP Encrypted Result (hidden initially) -->
+                            <div id="esim-encrypted" class="esim-result hidden">
+                                <h3 class="esim-result-title">Your eSIM is Ready</h3>
+                                <p class="esim-result-subtitle">Encrypted with your PGP key</p>
+                                <div class="esim-encrypted-notice">
+                                    Decrypt this message with your private key to reveal the activation code.
+                                </div>
+                                <div class="esim-pgp-output" id="esim-pgp-display"></div>
+                                <button type="button" id="copy-pgp" class="btn btn-primary">
+                                    Copy Encrypted Message
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <span class="logo-icon">&#9671;</span>
+                        <span class="logo-text">VNSH</span>
+                    </a>
+                    <p>Ephemeral connectivity for those who value privacy.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="/lookup.html">Order Lookup</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="mailto:vnshprotocol@protonmail.com">Support</a>
+                </div>
+                <div class="footer-verify">
+                    <a href="https://github.com/vnshesims/vnsh" target="_blank" rel="noopener">Open Source</a>
+                    <span class="verify-hash" id="verify-hash" title="Click to verify"></span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Progressive Enhancement: JS for dynamic inventory -->
+    <script>
+    (function() {
+        var API_BASE = '/api';
+
+        var countrySelect = document.getElementById('country');
+        var durationSelect = document.getElementById('duration');
+        var displayNetworks = document.getElementById('display-networks');
+        var payBtcBtn = document.getElementById('pay-btc');
+        var payXmrBtn = document.getElementById('pay-xmr');
+        var pgpEncryptCheckbox = document.getElementById('pgp-encrypt');
+        var pgpKeyContainer = document.getElementById('pgp-key-container');
+        var paymentButtons = document.getElementById('payment-buttons');
+        var paymentDisplay = document.getElementById('payment-display');
+
+        var currentPlans = [];
+        var currentOrderId = null;
+        var currentInvoiceId = null;
+        var paymentPollInterval = null;
+
+        // Network info by country
+        var networksByCountry = {
+            'United States': 'AT&T, T-Mobile, Verizon',
+            'United Kingdom': 'EE, O2, Three, Vodafone',
+            'Germany': 'Telekom, Vodafone, O2',
+            'France': 'Orange, SFR, Bouygues, Free',
+            'Japan': 'NTT Docomo, au, SoftBank',
+            'Australia': 'Telstra, Optus, Vodafone',
+            'Canada': 'Rogers, Bell, Telus',
+            'Spain': 'Movistar, Vodafone, Orange',
+            'Italy': 'TIM, Vodafone, WindTre',
+            'Netherlands': 'KPN, T-Mobile, Vodafone'
+        };
+
+        function updateNetworks(country) {
+            var networks = networksByCountry[country] || 'Local carriers';
+            displayNetworks.textContent = networks;
+        }
+
+        // Load countries from inventory
+        function loadCountries() {
+            fetch(API_BASE + '/countries')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.countries && data.countries.length > 0) {
+                        countrySelect.innerHTML = '';
+                        data.countries.forEach(function(c) {
+                            var opt = document.createElement('option');
+                            opt.value = c.code;
+                            opt.textContent = c.name + ' (' + c.inventory + ' available)';
+                            countrySelect.appendChild(opt);
+                        });
+                        loadPricing(countrySelect.value);
+                        updateNetworks(countrySelect.value);
+                    } else {
+                        countrySelect.innerHTML = '<option value="">No inventory available</option>';
+                        durationSelect.innerHTML = '<option value="">--</option>';
+                        displayInventory.textContent = '0';
+                        setButtonsDisabled(true);
+                    }
+                })
+                .catch(function() {});
+        }
+
+        // Load pricing/plans for selected country
+        function loadPricing(country) {
+            fetch(API_BASE + '/pricing?country=' + encodeURIComponent(country))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.plans && data.plans.length > 0) {
+                        currentPlans = data.plans;
+                        durationSelect.innerHTML = '';
+                        data.plans.forEach(function(p) {
+                            var opt = document.createElement('option');
+                            opt.value = p.plan_id;
+                            opt.dataset.price = p.price_usd;
+                            opt.dataset.days = p.duration_days;
+                            opt.dataset.gb = p.data_gb;
+                            opt.dataset.inventory = p.inventory;
+                            opt.dataset.country = p.country;
+                            opt.textContent = p.plan_name + ' - $' + p.price_usd + ' (' + p.inventory + ' in stock)';
+                            if (p.featured) opt.selected = true;
+                            durationSelect.appendChild(opt);
+                        });
+                        updateDisplay();
+                        setButtonsDisabled(false);
+                    } else {
+                        durationSelect.innerHTML = '<option value="">No plans available</option>';
+                        setButtonsDisabled(true);
+                    }
+                })
+                .catch(function() {});
+        }
+
+        // Helper to enable/disable payment buttons
+        function setButtonsDisabled(disabled) {
+            if (disabled) {
+                payBtcBtn.classList.add('disabled');
+                payXmrBtn.classList.add('disabled');
+            } else {
+                payBtcBtn.classList.remove('disabled');
+                payXmrBtn.classList.remove('disabled');
+            }
+        }
+
+        // Update button state based on inventory
+        function updateDisplay() {
+            var opt = durationSelect.options[durationSelect.selectedIndex];
+            if (!opt || !opt.value) return;
+
+            var inventory = parseInt(opt.dataset.inventory || '0', 10);
+            setButtonsDisabled(inventory === 0);
+        }
+
+        // Create invoice and show payment inline
+        function createInvoice(paymentMethod) {
+            var opt = durationSelect.options[durationSelect.selectedIndex];
+            if (!opt || !opt.value) return;
+
+            var price = opt.dataset.price;
+            var days = opt.dataset.days;
+            var country = opt.dataset.country || countrySelect.value;
+            var planId = opt.value;
+            var pgpKey = document.getElementById('pgp-key').value.trim();
+
+            // Disable buttons while processing
+            setButtonsDisabled(true);
+            payBtcBtn.textContent = 'Creating invoice...';
+            payXmrBtn.textContent = 'Creating invoice...';
+
+            var payload = {
+                plan_id: planId,
+                country: country,
+                days: parseInt(days),
+                price: parseFloat(price),
+                payment_method: paymentMethod
+            };
+
+            // Include PGP key if provided
+            if (pgpKey) {
+                payload.pgp_public_key = pgpKey;
+            }
+
+            fetch(API_BASE + '/invoice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                payBtcBtn.textContent = 'Pay with Bitcoin';
+                payXmrBtn.textContent = 'Pay with Monero';
+
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    setButtonsDisabled(false);
+                    return;
+                }
+
+                // Show inline payment display
+                if (data.payment_address && data.payment_amount) {
+                    showPaymentInline(data, paymentMethod);
+                } else if (data.checkout_url) {
+                    // Fallback to redirect if no inline data
+                    window.location.href = data.checkout_url;
+                }
+            })
+            .catch(function(err) {
+                payBtcBtn.textContent = 'Pay with Bitcoin';
+                payXmrBtn.textContent = 'Pay with Monero';
+                alert('Failed to create invoice. Please try again.');
+                setButtonsDisabled(false);
+            });
+        }
+
+        // Show payment details inline
+        function showPaymentInline(data, paymentMethod) {
+            currentOrderId = data.order_id;
+            currentInvoiceId = data.invoice_id;
+
+            // Update display elements
+            document.getElementById('payment-method-label').textContent =
+                paymentMethod === 'BTC' ? 'Bitcoin' : 'Monero';
+            document.getElementById('payment-amount-usd').textContent = '$' + data.price_usd.toFixed(2);
+            document.getElementById('payment-crypto-amount').textContent = data.payment_amount;
+            document.getElementById('payment-address-value').textContent = data.payment_address;
+            document.getElementById('invoice-id-value').textContent = data.invoice_id || 'N/A';
+
+            // Generate QR code
+            var qrData = data.payment_link || data.payment_address;
+            QRCode.toCanvas(document.getElementById('payment-qr-code'), qrData, {
+                width: 180,
+                margin: 0,
+                color: { dark: '#000000', light: '#ffffff' }
+            });
+
+            // Hide form elements, show payment
+            paymentButtons.classList.add('hidden');
+            document.getElementById('country').closest('.form-group').classList.add('hidden');
+            document.getElementById('networks-row').classList.add('hidden');
+            document.querySelector('.info-row:not(#networks-row)').classList.add('hidden');
+            document.getElementById('duration').closest('.form-group').classList.add('hidden');
+            document.querySelector('.pgp-group').classList.add('hidden');
+            paymentDisplay.classList.remove('hidden');
+
+            // Start polling for payment
+            startPaymentPolling();
+        }
+
+        // Poll for payment confirmation
+        function startPaymentPolling() {
+            if (paymentPollInterval) clearInterval(paymentPollInterval);
+
+            paymentPollInterval = setInterval(function() {
+                if (!currentOrderId) return;
+
+                fetch(API_BASE + '/order/' + encodeURIComponent(currentOrderId))
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.status === 'fulfilled' && data.lpa) {
+                            clearInterval(paymentPollInterval);
+                            // Show eSIM result inline instead of redirecting
+                            showEsimResult(data);
+                        } else if (data.status === 'pending') {
+                            // Update status text to show we're still waiting
+                            updatePaymentStatus('Waiting for payment confirmation...');
+                        } else if (data.status === 'processing') {
+                            updatePaymentStatus('Payment detected, processing...');
+                        }
+                    })
+                    .catch(function() {
+                        // Network error - keep polling silently
+                    });
+            }, 5000);
+        }
+
+        // Update payment status text
+        function updatePaymentStatus(message) {
+            var statusText = document.getElementById('payment-status-text');
+            if (statusText) {
+                statusText.textContent = message;
+            }
+        }
+
+        // Show eSIM result after payment confirms
+        function showEsimResult(data) {
+            // Hide payment display
+            paymentDisplay.classList.add('hidden');
+
+            if (data.encrypted) {
+                // Show PGP encrypted result
+                var encryptedDiv = document.getElementById('esim-encrypted');
+                var pgpDisplay = document.getElementById('esim-pgp-display');
+                pgpDisplay.textContent = data.lpa;
+                encryptedDiv.classList.remove('hidden');
+            } else {
+                // Show QR code result
+                var resultDiv = document.getElementById('esim-result');
+                var lpaDisplay = document.getElementById('esim-lpa-display');
+                lpaDisplay.textContent = data.lpa;
+
+                // Generate QR code for LPA
+                QRCode.toCanvas(document.getElementById('esim-qr-code'), data.lpa, {
+                    width: 200,
+                    margin: 0,
+                    color: { dark: '#000000', light: '#ffffff' }
+                });
+
+                resultDiv.classList.remove('hidden');
+            }
+        }
+
+        // Copy LPA code to clipboard
+        function copyLPA() {
+            var lpa = document.getElementById('esim-lpa-display').textContent;
+            navigator.clipboard.writeText(lpa).then(function() {
+                var btn = document.getElementById('copy-lpa');
+                btn.textContent = 'Copied!';
+                setTimeout(function() {
+                    btn.textContent = 'Copy Activation Code';
+                }, 2000);
+            });
+        }
+
+        // Copy PGP message to clipboard
+        function copyPGP() {
+            var pgp = document.getElementById('esim-pgp-display').textContent;
+            navigator.clipboard.writeText(pgp).then(function() {
+                var btn = document.getElementById('copy-pgp');
+                btn.textContent = 'Copied!';
+                setTimeout(function() {
+                    btn.textContent = 'Copy Encrypted Message';
+                }, 2000);
+            });
+        }
+
+        // Cancel payment and reset
+        function cancelPayment() {
+            if (paymentPollInterval) {
+                clearInterval(paymentPollInterval);
+                paymentPollInterval = null;
+            }
+            currentOrderId = null;
+
+            // Show form elements, hide payment
+            paymentButtons.classList.remove('hidden');
+            document.getElementById('country').closest('.form-group').classList.remove('hidden');
+            document.getElementById('networks-row').classList.remove('hidden');
+            document.querySelector('.info-row:not(#networks-row)').classList.remove('hidden');
+            document.getElementById('duration').closest('.form-group').classList.remove('hidden');
+            document.querySelector('.pgp-group').classList.remove('hidden');
+            paymentDisplay.classList.add('hidden');
+
+            setButtonsDisabled(false);
+        }
+
+        // Copy address to clipboard
+        function copyAddress() {
+            var address = document.getElementById('payment-address-value').textContent;
+            navigator.clipboard.writeText(address).then(function() {
+                var btn = document.getElementById('copy-address');
+                btn.textContent = 'Copied!';
+                setTimeout(function() {
+                    btn.textContent = 'Copy Address';
+                }, 2000);
+            });
+        }
+
+        // Event listeners
+        countrySelect.addEventListener('change', function() {
+            loadPricing(this.value);
+            updateNetworks(this.value);
+        });
+
+        durationSelect.addEventListener('change', updateDisplay);
+
+        payBtcBtn.addEventListener('click', function() {
+            if (!this.classList.contains('disabled')) {
+                createInvoice('BTC');
+            }
+        });
+
+        payXmrBtn.addEventListener('click', function() {
+            if (!this.classList.contains('disabled')) {
+                createInvoice('XMR');
+            }
+        });
+
+        document.getElementById('copy-address').addEventListener('click', copyAddress);
+        document.getElementById('cancel-payment').addEventListener('click', cancelPayment);
+        document.getElementById('copy-lpa').addEventListener('click', copyLPA);
+        document.getElementById('copy-pgp').addEventListener('click', copyPGP);
+
+        // PGP checkbox toggle
+        pgpEncryptCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                pgpKeyContainer.classList.remove('hidden');
+            } else {
+                pgpKeyContainer.classList.add('hidden');
+                document.getElementById('pgp-key').value = '';
+            }
+        });
+
+        // Help toggle for all step explanations
+        document.querySelectorAll('.help-toggle').forEach(function(toggle) {
+            toggle.addEventListener('click', function() {
+                var helpExpand = this.closest('.step-content').querySelector('.help-expand');
+                if (helpExpand) {
+                    helpExpand.classList.toggle('hidden');
+                }
+            });
+        });
+
+        // Initial load
+        loadCountries();
+
+        // Load and display verification hash
+        fetch('/version.json')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var hashEl = document.getElementById('verify-hash');
+                if (hashEl && data.hash) {
+                    hashEl.textContent = data.hash.substring(0, 12) + '...';
+                    hashEl.title = 'Full hash: ' + data.hash + '\nGenerated: ' + data.generated + '\nCommit: ' + data.commit;
+                    hashEl.onclick = function() {
+                        window.open('https://github.com/vnshesims/vnsh', '_blank');
+                    };
+                }
+            })
+            .catch(function() {});
+    })();
+    </script>
+</body>
+</html>
