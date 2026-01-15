@@ -1,6 +1,6 @@
 {
-  "hash": "195be4d2128cc5b59e9ef5b3a329e8de4d321c919f3dbc0b71fa81abd6c3ad5e",
-  "commit": "989e478",
-  "generated": "2026-01-15T18:22:13Z",
+  "hash": "06bb705c9226003574a7218a3b7d5a8222085b072679c1f802bdeacf5f10099e",
+  "commit": "614113b",
+  "generated": "2026-01-15T19:41:51Z",
   "verify": "find public -type f -name '*.html' -o -name '*.css' -o -name '*.js' | grep -v version.json | sort | xargs cat | sha256sum"
 }
