@@ -623,7 +623,7 @@
                 var hashEl = document.getElementById('verify-hash');
                 if (hashEl && data.hash) {
                     hashEl.textContent = data.hash.substring(0, 12) + '...';
-                    hashEl.title = 'Full hash: ' + data.hash + '\nGenerated: ' + data.generated + '\nCommit: ' + data.commit;
+                    hashEl.title = 'Full hash: ' + data.hash + '\nGenerated: ' + data.generated;
                     hashEl.onclick = function() {
                         window.open('https://github.com/vnshesims/vnsh', '_blank');
                     };

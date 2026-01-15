@@ -1,6 +1,5 @@
 {
-  "hash": "31fe9eb959e21a94e3fd775a3ab1e1a4c7af81b16956ecc0cb503e3cdb8be333",
-  "generated": "2026-01-15T17:08:58Z",
-  "commit": "f529b90",
-  "verify": "find public -type f -name '*.html' -o -name '*.css' -o -name '*.js' | sort | xargs cat | sha256sum"
+  "hash": "c566085ee55ff03d821d08317d2ee33b751acff2ae7475c5885b8e6a415b350e",
+  "generated": "2026-01-15T17:09:26Z",
+  "verify": "find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \) ! -name 'version.json' | sort | xargs cat | sha256sum"
 }
