@@ -50,13 +50,9 @@ def health():
 @app.route('/api/version', methods=['GET'])
 def version():
     """Get current git commit hash."""
-    import subprocess
     try:
-        commit = subprocess.check_output(
-            ['git', 'rev-parse', '--short', 'HEAD'],
-            cwd='/home/admin/storefront',
-            stderr=subprocess.DEVNULL
-        ).decode().strip()
+        with open('/app/COMMIT', 'r') as f:
+            commit = f.read().strip()
     except:
         commit = "unknown"
     return jsonify({"commit": commit})
