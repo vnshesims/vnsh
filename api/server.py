@@ -46,6 +46,21 @@ def health():
     """Health check endpoint."""
     return jsonify({"status": "ok"})
 
+
+@app.route('/api/version', methods=['GET'])
+def version():
+    """Get current git commit hash."""
+    import subprocess
+    try:
+        commit = subprocess.check_output(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            cwd='/home/admin/storefront',
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+    except:
+        commit = "unknown"
+    return jsonify({"commit": commit})
+
 @app.route('/api/countries', methods=['GET'])
 def countries():
     """Get list of countries with available inventory."""
