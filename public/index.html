@@ -32,7 +32,7 @@
                             <span class="logo-icon large">&#9671;</span>
                             <span class="logo-text large">VNSH</span>
                         </div>
-                        <p class="brand-tagline">Break the payment-identity link. Optional PGP encryption for secure delivery. Hosted by PrivateAlps in Switzerland.</p>
+                        <p class="brand-tagline">Zero logs. Auto-purging orders. Pool-based assignment. We can't link your payment to your eSIM.</p>
                     </div>
 
                     <!-- How It Works -->
@@ -62,9 +62,9 @@
                         <div class="step">
                             <div class="step-num">3</div>
                             <div class="step-content">
-                                <h3>Random Assignment <button type="button" class="help-toggle" aria-label="Learn more about random assignment">?</button></h3>
+                                <h3>Pool Assignment <button type="button" class="help-toggle" aria-label="Learn more about pool assignment">?</button></h3>
                                 <div class="help-expand hidden">
-                                    <p>Once payment confirms, a random eSIM is assigned from the pool of available SIMs.</p>
+                                    <p>Random eSIM assigned from pool. Minimum pool sizes prevent identification. Order data auto-purges after delivery.</p>
                                 </div>
                             </div>
                         </div>
@@ -224,7 +224,7 @@
                         <span class="logo-icon">&#9671;</span>
                         <span class="logo-text">VNSH</span>
                     </a>
-                    <p>Ephemeral connectivity for those who value privacy.</p>
+                    <p>Zero-knowledge eSIM. No logs. No link between payment and SIM.</p>
                 </div>
                 <div class="footer-links">
                     <a href="/lookup.html">Order Lookup</a>
@@ -234,7 +234,7 @@
                 </div>
                 <div class="footer-verify">
                     <a href="https://github.com/vnshesims/vnsh" target="_blank" rel="noopener">Open Source</a>
-                    <a href="/version.json">Version</a>
+                    <a href="/api/version">Version</a>
                     <a href="/canary.html">Warrant Canary</a>
                 </div>
             </div>
@@ -290,7 +290,7 @@
                         data.countries.forEach(function(c) {
                             var opt = document.createElement('option');
                             opt.value = c.code;
-                            opt.textContent = c.name + ' (' + c.inventory + ' available)';
+                            opt.textContent = c.name;
                             countrySelect.appendChild(opt);
                         });
                         loadPricing(countrySelect.value);
@@ -321,7 +321,7 @@
                             opt.dataset.gb = p.data_gb;
                             opt.dataset.inventory = p.inventory;
                             opt.dataset.country = p.country;
-                            opt.textContent = p.plan_name + ' - $' + p.price_usd + ' (' + p.inventory + ' in stock)';
+                            opt.textContent = p.plan_name + ' - $' + p.price_usd;
                             if (p.featured) opt.selected = true;
                             durationSelect.appendChild(opt);
                         });

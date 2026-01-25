@@ -9,8 +9,13 @@ from database import (
     get_db, init_db, import_csv, get_inventory_options,
     get_countries, get_pricing, assign_esim, get_total_inventory,
     get_inventory_stats, delete_all_inventory,
-    create_order, get_order, get_order_by_invoice, fulfill_order, cleanup_expired_orders
+    create_order, get_order, get_order_by_invoice, fulfill_order, cleanup_expired_orders,
+    mark_order_viewed, purge_order_sensitive_data
 )
+
+# Privacy: Minimum inventory threshold to prevent identification
+# Plans with fewer than this many eSIMs are hidden from customers
+MIN_INVENTORY_THRESHOLD = 5
 from pgp_utils import encrypt_message, validate_public_key
 import secrets
 import os
@@ -61,9 +66,16 @@ def version():
 def countries():
     """Get list of countries with available inventory."""
     country_list = get_countries()
-    return jsonify({
-        "countries": [{"code": c['country'], "name": c['country'], "inventory": c['total_inventory']} for c in country_list]
-    })
+    # Filter out countries below minimum threshold and hide exact counts
+    filtered = []
+    for c in country_list:
+        if c['total_inventory'] >= MIN_INVENTORY_THRESHOLD:
+            filtered.append({
+                "code": c['country'],
+                "name": c['country'],
+                "inventory": "In Stock"  # Don't expose exact count
+            })
+    return jsonify({"countries": filtered})
 
 @app.route('/api/pricing', methods=['GET'])
 def pricing():
@@ -76,15 +88,18 @@ def pricing():
     plans = get_pricing(country)
 
     # Format for frontend compatibility
+    # Filter out plans below minimum threshold to prevent identification
     formatted_plans = []
     for p in plans:
+        if p['inventory'] < MIN_INVENTORY_THRESHOLD:
+            continue  # Hide low-inventory plans for privacy
         formatted_plans.append({
             "plan_id": f"{p['country']}_{p['duration_days']}_{p['data_gb']}_{p['price_usd']}",
             "plan_name": p['plan_name'],
             "duration_days": p['duration_days'],
             "data_gb": p['data_gb'],
             "price_usd": p['price_usd'],
-            "inventory": p['inventory'],
+            "inventory": "In Stock",  # Don't expose exact count
             "country": p['country'],
             "featured": p['duration_days'] == 30  # 30-day plans featured by default
         })
@@ -238,7 +253,7 @@ def create_invoice():
     if payment_method not in ['BTC', 'XMR']:
         return jsonify({"error": "Invalid payment method. Use BTC or XMR"}), 400
 
-    # Check inventory availability
+    # Check inventory availability (must be above privacy threshold)
     pricing = get_pricing(country)
     matching_plan = None
     for p in pricing:
@@ -246,7 +261,7 @@ def create_invoice():
             matching_plan = p
             break
 
-    if not matching_plan or matching_plan['inventory'] <= 0:
+    if not matching_plan or matching_plan['inventory'] < MIN_INVENTORY_THRESHOLD:
         return jsonify({"error": "Selected plan is out of stock"}), 400
 
     # Build item description
@@ -298,7 +313,6 @@ def create_invoice():
         )
 
         if response.status_code not in (200, 201):
-            print(f"[ERROR] BTCPay invoice creation failed: {response.status_code} - {response.text}")
             # Check for specific errors
             if "wallet not available" in response.text.lower() or "node not available" in response.text.lower():
                 return jsonify({"error": f"{payment_method} payments temporarily unavailable"}), 503
@@ -347,11 +361,8 @@ def create_invoice():
                         payment_amount = pm.get('due', '')
                         payment_link = f"monero:{payment_address}?tx_amount={payment_amount}"
                         break
-        except Exception as e:
-            print(f"[WARN] Failed to get payment details: {e}")
-
-        pgp_status = "with PGP encryption" if pgp_public_key else "without encryption"
-        print(f"[INFO] Created invoice {invoice_id} for {item_desc} via {payment_method} {pgp_status}, order: {order_token[:8]}...")
+        except Exception:
+            pass  # Silently fail - no logging for privacy
 
         return jsonify({
             "success": True,
@@ -367,8 +378,7 @@ def create_invoice():
 
     except requests.exceptions.Timeout:
         return jsonify({"error": "Payment server timeout"}), 504
-    except Exception as e:
-        print(f"[ERROR] Invoice creation error: {e}")
+    except Exception:
         return jsonify({"error": "Failed to create invoice"}), 500
 
 
@@ -389,7 +399,6 @@ def verify_btcpay_signature(payload, signature):
 def delete_btcpay_invoice(invoice_id):
     """Delete invoice from BTCPay Server to leave no trace."""
     if not BTCPAY_API_KEY:
-        print(f"[WARN] No BTCPay API key configured, cannot delete invoice {invoice_id}")
         return False
 
     try:
@@ -398,14 +407,8 @@ def delete_btcpay_invoice(invoice_id):
             headers={"Authorization": f"token {BTCPAY_API_KEY}"},
             timeout=10
         )
-        if response.status_code in (200, 204):
-            print(f"[INFO] Deleted invoice {invoice_id} from BTCPay")
-            return True
-        else:
-            print(f"[WARN] Failed to delete invoice {invoice_id}: {response.status_code}")
-            return False
-    except Exception as e:
-        print(f"[ERROR] Error deleting invoice {invoice_id}: {e}")
+        return response.status_code in (200, 204)
+    except Exception:
         return False
 
 
@@ -462,7 +465,6 @@ def btcpay_webhook():
     country, days = parse_item_desc(item_desc)
 
     if not country or not days or not price:
-        print(f"[ERROR] Invalid order data: {item_desc}, price={price}")
         return jsonify({"error": "Invalid order data"}), 400
 
     try:
@@ -473,23 +475,16 @@ def btcpay_webhook():
     # Get the order linked to this invoice
     order = get_order_by_invoice(invoice_id)
     if not order:
-        print(f"[ERROR] No order found for invoice {invoice_id}")
         return jsonify({"error": "Order not found"}), 404
 
     # Assign a random eSIM from inventory
     lpa = assign_esim(country, days, price)
 
     if not lpa:
-        print(f"[ERROR] No inventory for {country}-{days}d at ${price}")
         return jsonify({"error": "No inventory available"}), 500
 
     # Fulfill the order with the LPA
     fulfill_order(invoice_id, lpa)
-
-    print(f"[INFO] Assigned eSIM for {country}-{days}d (invoice: {invoice_id[:8]}..., order: {order['order_id'][:8]}...)")
-
-    # Invoices are purged by the daily cron job instead of immediately
-    # This provides a 24-hour window for customer support if needed
 
     # Return success - customer will see LPA on delivery page
     return jsonify({
@@ -541,15 +536,18 @@ def get_order_status(order_id):
             try:
                 lpa = encrypt_message(lpa, pgp_key)
                 encrypted = True
-            except Exception as e:
+            except Exception:
                 # If encryption fails, still return the raw LPA
-                print(f"[ERROR] PGP encryption failed for order {order_id[:8]}: {e}")
+                pass
+
+        # Mark as viewed and purge sensitive data immediately
+        mark_order_viewed(order_id)
+        purge_order_sensitive_data(order_id)
 
         return jsonify({
             "status": "fulfilled",
             "lpa": lpa,
-            "encrypted": encrypted,
-            "invoice_id": order.get('invoice_id')
+            "encrypted": encrypted
         })
     elif order['status'] == 'pending':
         return jsonify({

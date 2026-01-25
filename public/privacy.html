@@ -44,10 +44,10 @@
         <div class="container">
             <div class="legal-content">
                 <h1>Privacy Policy</h1>
-                <p class="legal-meta">Last Updated: January 14, 2026</p>
+                <p class="legal-meta">Last Updated: January 25, 2026</p>
 
                 <div class="highlight-box">
-                    <p><strong>Summary:</strong> We are designed for privacy. We do not collect personal information, do not create accounts, and do not track users. Each payment invoice is automatically deleted 24 hours after creation. This policy explains our data practices in detail for legal compliance.</p>
+                    <p><strong>Summary:</strong> We are designed for privacy. Zero server logs. No IP tracking. Order data auto-purges within 1 hour. Minimum pool sizes prevent identification. We cannot link your payment to your eSIM.</p>
                 </div>
 
                 <h2>1. Introduction and Scope</h2>
@@ -71,7 +71,7 @@
                 </ul>
 
                 <h3>2.2 Information Temporarily Processed</h3>
-                <p>The following information is temporarily processed and automatically deleted upon payment confirmation:</p>
+                <p>The following information is temporarily processed and automatically deleted:</p>
                 <table>
                     <tr>
                         <th>Data Type</th>
@@ -81,17 +81,17 @@
                     <tr>
                         <td>Payment invoice</td>
                         <td>Payment verification</td>
-                        <td>Deleted upon confirmation</td>
+                        <td>Purged within 1 hour</td>
                     </tr>
                     <tr>
-                        <td>Plan selection</td>
-                        <td>Service fulfillment</td>
-                        <td>Not stored after assignment</td>
+                        <td>Order token</td>
+                        <td>eSIM delivery</td>
+                        <td>Purged immediately after viewing</td>
                     </tr>
                     <tr>
-                        <td>eSIM assignment</td>
-                        <td>Random pool allocation</td>
-                        <td>No record linking payment to eSIM</td>
+                        <td>eSIM code</td>
+                        <td>Delivery only</td>
+                        <td>Deleted from order after you view it</td>
                     </tr>
                 </table>
 
@@ -113,20 +113,21 @@
                 <p>We do not sell, rent, lease, or trade any personal information. We have never sold personal information and have no intention of doing so.</p>
 
                 <h3>4.2 Legal Requests</h3>
-                <p>Due to our data minimization architecture, we are generally unable to respond to legal requests for user data because such data does not exist. Each payment invoice is deleted 24 hours after creation, and no record links payments to eSIM assignments.</p>
-                <p>If we receive a valid legal request, we can only provide information that exists at the time of the request, which, by design, is minimal to none.</p>
+                <p>Due to our data minimization architecture, we are unable to respond to legal requests for user data because such data does not exist. Order data is purged within 1 hour. Server logs are disabled. No record links payments to eSIM assignments.</p>
+                <p>If we receive a valid legal request, we can only provide information that exists at the time of the request, which is nothing.</p>
 
                 <h2>5. Data Retention and Deletion</h2>
 
                 <div class="highlight-box">
-                    <p><strong>24-Hour Purge:</strong> Each payment invoice is automatically and permanently deleted 24 hours after creation. This process is automated and cannot be overridden.</p>
+                    <p><strong>Aggressive Auto-Purge:</strong> Order data is purged immediately after you view your eSIM. Any remaining orders are deleted within 1 hour. This process is automated and cannot be overridden.</p>
                 </div>
 
                 <p>Our data retention policy:</p>
                 <ul>
-                    <li>Each invoice is deleted 24 hours after creation</li>
-                    <li>No record linking your payment to your eSIM exists after purge</li>
-                    <li>No historical transaction data is retained</li>
+                    <li>Order data purged immediately when you view your eSIM</li>
+                    <li>All orders deleted within 1 hour maximum</li>
+                    <li>Server access logs disabled (no IP logging)</li>
+                    <li>Minimum pool sizes prevent single-purchase identification</li>
                     <li>Random pool assignment ensures unlinkability</li>
                 </ul>
 
@@ -186,8 +187,10 @@
                 <p>We implement security measures including:</p>
                 <ul>
                     <li>Tor-only access (no clearnet exposure)</li>
-                    <li>No persistent data storage</li>
-                    <li>Automatic data purge systems</li>
+                    <li>Zero server logs (nginx access logs disabled)</li>
+                    <li>No IP address forwarding or recording</li>
+                    <li>Automatic data purge within 1 hour</li>
+                    <li>Minimum pool thresholds prevent single-purchase identification</li>
                     <li>Random pool assignment (no linking between purchase and eSIM)</li>
                     <li>No account system (eliminates credential theft risk)</li>
                 </ul>
@@ -209,7 +212,7 @@
                 <p>This Privacy Policy fully discloses our data practices. Our architecture ensures that privacy is enforced technically, not just through policy.</p>
 
                 <div class="highlight-box warning">
-                    <p><strong>Important:</strong> Each invoice is permanently deleted 24 hours after creation. We cannot retrieve, restore, or provide any information about past transactions. This is by design and is a core feature of our privacy-preserving architecture.</p>
+                    <p><strong>Important:</strong> Order data is permanently deleted within 1 hour. We cannot retrieve, restore, or provide any information about past transactions. There are no logs. This is by design.</p>
                 </div>
 
             </div>
@@ -234,7 +237,7 @@
                 </div>
                 <div class="footer-verify">
                     <a href="https://github.com/vnshesims/vnsh" target="_blank" rel="noopener">Open Source</a>
-                    <a href="/version.json">Version</a>
+                    <a href="/api/version">Version</a>
                     <a href="/canary.html">Warrant Canary</a>
                 </div>
             </div>

@@ -66,7 +66,6 @@ def init_db():
 
     conn.commit()
     conn.close()
-    print("Database initialized.")
 
 def import_csv(csv_path):
     """
@@ -463,15 +462,37 @@ def cleanup_expired_orders():
         WHERE status = 'pending' AND expires_at < datetime('now')
     """)
     deleted = cursor.rowcount
-    # Also delete fulfilled orders older than 24 hours
+    # Delete fulfilled orders after 1 hour (reduced from 24 for privacy)
     cursor.execute("""
         DELETE FROM orders
-        WHERE status = 'fulfilled' AND created_at < datetime('now', '-24 hours')
+        WHERE status = 'fulfilled' AND created_at < datetime('now', '-1 hour')
+    """)
+    deleted += cursor.rowcount
+    # Delete viewed orders after 10 minutes (customer already got their LPA)
+    cursor.execute("""
+        DELETE FROM orders
+        WHERE status = 'fulfilled' AND viewed = 1 AND created_at < datetime('now', '-10 minutes')
     """)
     deleted += cursor.rowcount
     conn.commit()
     conn.close()
     return deleted
+
+
+def purge_order_sensitive_data(order_id):
+    """
+    Purge sensitive data from order after customer views it.
+    Keeps only minimal record for debugging, removes LPA and PGP key.
+    """
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE orders
+        SET lpa = NULL, pgp_public_key = NULL, invoice_id = NULL
+        WHERE order_id = ? AND viewed = 1
+    """, (order_id,))
+    conn.commit()
+    conn.close()
 
 
 if __name__ == "__main__":
