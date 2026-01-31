@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 VNSH Invoice Purge Script
-Deletes invoices older than 24 hours from BTCPay Server.
-Run frequently via cron (e.g., every hour) to maintain privacy.
+Deletes invoices older than 1 hour from BTCPay Server.
+Run via cron every 15 minutes to maintain privacy.
 """
 
 import os
@@ -27,8 +27,8 @@ BTCPAY_URL = os.environ.get('BTCPAY_URL', 'http://172.18.0.10:80')
 BTCPAY_API_KEY = os.environ.get('BTCPAY_API_KEY', '')
 BTCPAY_STORE_ID = os.environ.get('BTCPAY_STORE_ID', '')
 
-# Invoice age threshold (24 hours in seconds)
-MAX_AGE_SECONDS = 24 * 60 * 60
+# Invoice age threshold (1 hour in seconds)
+MAX_AGE_SECONDS = 1 * 60 * 60
 
 
 def get_all_invoices():
@@ -80,7 +80,7 @@ def purge_old_invoices():
     """Purge invoices older than 24 hours from BTCPay Server."""
     now = datetime.now(timezone.utc)
     timestamp = now.isoformat()
-    print(f"[{timestamp}] Starting invoice purge (deleting invoices older than 24 hours)...")
+    print(f"[{timestamp}] Starting invoice purge (deleting invoices older than 1 hour)...")
 
     invoices = get_all_invoices()
     if not invoices:
